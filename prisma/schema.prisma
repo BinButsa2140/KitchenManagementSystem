@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Departments {
+  department_id   Int         @id @default(autoincrement())
+  department_name String
+  rate            Decimal
+  created_at      DateTime    @default(now())
+  edited_at       DateTime    @updatedAt
+  employees       Employees[]
+}
+
+model Customers {
+  customer_id   Int          @id @default(autoincrement())
+  firstname     String
+  lastname      String
+  date_of_birth DateTime
+  customer_type CustomerType
+  email         String       @unique
+  password      String
+  phone_number  String       @unique
+  created_at    DateTime     @default(now())
+  edited_at     DateTime     @updatedAt
+  bookings      Bookings[]
+}
+
+model Employees {
+  employee_id     Int            @id @default(autoincrement())
+  firstname       String
+  lastname        String
+  gender          Gender
+  phone_number    String         @unique
+  email           String         @unique
+  password        String
+  date_of_birth   DateTime
+  department_id   Int?
+  employee_status EmployeeStatus
+  created_at      DateTime       @default(now())
+  edited_at       DateTime       @updatedAt
+  department      Departments?   @relation(fields: [department_id], references: [department_id])
+  rooms           Rooms[]
+  equipments      Equipments[]
+}
+
+model Rooms {
+  room_id    Int          @id @default(autoincrement())
+  room_name  String
+  description String?
+  image String?
+  room_type  RoomType
+  equipments Equipments[]
+  Bookings   Bookings[]
+  Employees  Employees[]
+}
+
+model Bookings {
+  booking_id     Int           @id @default(autoincrement())
+  customer_id    Int
+  room_id        Int
+  booking_time   DateTime
+  created_at     DateTime      @default(now())
+  edited_at      DateTime      @updatedAt
+  booking_status BookingStatus
+  customer       Customers     @relation(fields: [customer_id], references: [customer_id])
+  room           Rooms         @relation(fields: [room_id], references: [room_id])
+}
+
+model Equipments {
+  equipment_id   Int       @id @default(autoincrement())
+  equipment_name String
+  room_id        Int?
+  created_at     DateTime  @default(now())
+  edited_at      DateTime  @updatedAt
+  employee_id    Int
+  price          Int
+  number         Int
+  room           Rooms?    @relation(fields: [room_id], references: [room_id])
+  employee       Employees @relation(fields: [employee_id], references: [employee_id])
+}
+
+enum CustomerType {
+  chef
+  customer
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum EmployeeStatus {
+  active
+  inactive
+}
+
+enum RoomType {
+  kitchen
+  storage
+  course
+}
+
+enum BookingStatus {
+  active
+  inactive
+  cancelled
+}
