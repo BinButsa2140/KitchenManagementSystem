@@ -6,12 +6,10 @@ import { fetchRoomData } from "@/app/utils/fetchRoom";
 import { BookingForm } from "../BookForm/BookForm";
 import { Room } from "@/app/utils/type";
 
-
 export function RoomDetail({ id }: { id: string }) {
   const [roomData, setRoomData] = useState<Room | null>(null);
   const [isVisible, setIsVisible] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,7 +17,7 @@ export function RoomDetail({ id }: { id: string }) {
       setRoomData(data);
     };
     fetchData();
-  }, []);
+  }, [id]);
 
   if (!isVisible || !roomData) return null;
 
@@ -32,13 +30,13 @@ export function RoomDetail({ id }: { id: string }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Image Section */}
         {showForm ? (
-          <BookingForm room_id={id}/>
+          <BookingForm room_id={id} />
         ) : (
           roomData.image && (
             <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden rounded-lg shadow-lg">
               <Image
                 src={roomData.image}
-                alt={roomData.room_name || "Room Image"} // Fallback for alt text
+                alt={roomData.room_name || "Kitchen Image"}
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -46,11 +44,12 @@ export function RoomDetail({ id }: { id: string }) {
             </div>
           )
         )}
+
         {/* Text Section */}
         <div className="flex flex-col space-y-6">
           <div>
             <p className="text-sm sm:text-base md:text-lg text-gray-600">
-              <span className="font-semibold text-gray-800">Room Type:</span>
+              <span className="font-semibold text-gray-800">Kitchen Type:</span>
               <span className="ml-2 text-gray-700">{roomData.room_type}</span>
             </p>
           </div>
@@ -66,16 +65,17 @@ export function RoomDetail({ id }: { id: string }) {
 
           <div>
             <h2 className="font-semibold text-base sm:text-lg text-gray-800">
-              Equipments
+              Features
             </h2>
             <EquipmentsInRoom id={id} />
           </div>
 
           <div className="mt-6">
             <button
-            onClick={e=>(setShowForm(!showForm))} 
-            className="w-full sm:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-300">
-              Book This Room
+              onClick={() => setShowForm(!showForm)}
+              className="w-full sm:w-auto px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300"
+            >
+              {showForm ? "View Kitchen" : "Book This Kitchen"}
             </button>
           </div>
         </div>

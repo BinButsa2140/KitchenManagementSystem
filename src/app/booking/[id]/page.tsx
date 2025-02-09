@@ -3,9 +3,7 @@ import { useSession } from "next-auth/react";
 import { NextRequest } from "next/server";
 import { Room } from "@/app/utils/type";
 
-const BookingPage = (req:NextRequest) => {
-  const searchParams = req.nextUrl.searchParams
-  const room_id = searchParams.get('room')
+const BookingPage = (room_id) => {
   const {data: session, status} = useSession()
   return(
     <div className="">

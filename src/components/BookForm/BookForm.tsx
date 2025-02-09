@@ -1,4 +1,4 @@
-import { useParams} from "next/navigation";
+import { useParams, useRouter} from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import z from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,7 @@ const getRoom = ()=>{
 export const BookingForm = ({room_id}) => {
   const {data:session, status} = useSession()//get user
   const customer_id = session?.user.id
+  const router = useRouter()
   const { register, handleSubmit, formState: { errors } } = useForm<BookingFormData>({ //นำฟอร์มเข้ามาใช้ โดยที่กำหนดข้อมูลตา่งๆในฟอร์มเป็น BookingFormData
     resolver: zodResolver(bookingSchema),
   });
@@ -45,6 +46,7 @@ export const BookingForm = ({room_id}) => {
       const result = await response.json()
       if (response.ok) {
         toast.success("Booking successful!");
+        router.push('/mybooking')
         // Handle further logic, e.g., clear form or navigate to another page
       } else {
         toast.error(result.error || "Error booking room");
