@@ -14,3 +14,9 @@ export type Room = {
     description: string;
     image: string;
   };
+
+export type BookForm={
+  room_id:number;
+  user_id:number;
+  booking_time:Date;
+}

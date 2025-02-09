@@ -17,4 +17,4 @@ export async function GET(req:NextRequest){
         return Response.json(booking_datas)
     } catch (error) {
         console.log(error)
-    }}
+}}

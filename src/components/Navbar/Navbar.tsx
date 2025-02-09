@@ -1,21 +1,10 @@
 import Link from "next/link"
 import UserIcon from './UserIcon';
 import UserMenu from './UserMenu';
+import { links } from "@/app/utils/links";
 
 
 const Navbar = () => {
-    
-    const links=[
-        {
-            title:'rooms',
-            href:'/room'
-        },
-        {
-            title:'my booking',
-            href:'/mybooking'
-        },
-    ]
-
     return (
         <header className="py-5 px-3 border-2">
           <div className="container mx-auto flex justify-between items-center">

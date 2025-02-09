@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useRouter } from "next/router";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "./../../components/Input/Input";
 import Selects from "./../../components/Input/Selects";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const FormSchema = z
   .object({
@@ -29,7 +28,7 @@ const FormSchema = z
       .string()
       .min(4, "must be more than 4")
       .max(16, "bro are you serious?")
-      .regex(new RegExp("^[1-9]"), "only for number"),
+      .regex(new RegExp("^[0-9]"), "only for number"),
     date_of_birth: z.coerce.date(),
   })
   .refine((data) => data.password === data.ConPassword, {
@@ -39,27 +38,51 @@ const FormSchema = z
 type FormSchemaType = z.infer<typeof FormSchema>;
 
 const SignupPage = () => {
+  const router = useRouter()
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormSchemaType>({
     resolver: zodResolver(FormSchema),
   });
 
+  const postdata = async (value) =>{
+    console.log("Sending Data")
+      try {
+        const response = await fetch('/api/auth/signup/customer', {
+          method:'POST',
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body:JSON.stringify({
+              fname:value.firstname,
+              lname:value.lastname,
+              date_of_birth:value.date_of_birth.toISOString(),
+              customer_type:value.customer_type,
+              email:value.email,
+              password:value.password,
+              phone_number:value.phone_number,
+          })
+  
+        })
+        if(!response.ok){
+          console.log('sign up fail')
+        }
+        const data = await response.json();
+        console.log("response : ", data)
+      } catch (error) {
+        console.log(error)
+      }
+  }
+
   const onSubmit: SubmitHandler<FormSchemaType> = async (values) => {
     try {
-      const datetimeLocal = values.date_of_birth;
-      
-      const localDate = new Date(datetimeLocal);
-    
-      const utcDatetime = localDate.toISOString();
-      
-
-      console.log("submitted", utcDatetime)
       toast.success("sign up success")
       console.log(values);
+      
+      postdata(values)
+      router.push('/profile')
     } catch (error) {
       console.log(error);
     }

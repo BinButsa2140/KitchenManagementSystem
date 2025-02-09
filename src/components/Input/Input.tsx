@@ -11,7 +11,7 @@ interface InputProps {
 }
 
 const Input: React.FunctionComponent<InputProps> = (props) => {
-  const { name, label, type, placeholder, register, error, disable } = props;
+  const { name, label, type, placeholder, register, error, disable, min=0 } = props;
 
   return (
     <>

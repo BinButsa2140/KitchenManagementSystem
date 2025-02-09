@@ -4,6 +4,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
+    
+    console.log('request', request)
     try {
         const {
             fname,
@@ -14,6 +16,9 @@ export async function POST(request: NextRequest) {
             password,
             phone_number,
           } = await request.json();
+
+          console.log(request)
+
           const hashedpassword = bcrypt.hashSync(password, 10);
           const newData = await prisma.customers.create({
             data:{
