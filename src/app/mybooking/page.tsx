@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import BookingPage from "../booking/page";
+import BookingPage from "../booking/[id]/page";
 
 const MyBooking = () => {
   const [booking, setBooking] = useState<BookingType[]>([]);
@@ -51,16 +51,16 @@ const MyBooking = () => {
   if (session) {
     return (
       <>
-        <div className="mx-52 my-20">
-          <div className="capitalize text-3xl">My Booking</div>
-          <div className="flex flex-col my-10 ">
+        <div className="mx-4 sm:mx-8 lg:mx-52 my-8 sm:my-12 lg:my-20">
+          <div className="capitalize text-2xl sm:text-3xl font-bold mb-6">My Booking</div>
+          <div className="flex flex-col gap-4 sm:gap-6 my-8 sm:my-10">
             {booking.map((data, index) => {
               console.log(data.booking_id);
               return (
-                <Link href={`/booking/${data.booking_id}`} key={index} className="border p-5 shadow-md">
-                  <h2 className="">{data.booking_time}</h2>
-                  <h2 className="">room: {data.room_id}</h2>
-                  <h2 className="">{data.booking_status}</h2>
+                <Link href={`/booking/${data.booking_id}`} key={index} className="border border-gray-200 p-4 sm:p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                  <h2 className="text-sm sm:text-base font-semibold text-gray-800">{data.booking_time}</h2>
+                  <h2 className="text-xs sm:text-sm text-gray-600 mt-2">Room: {data.room_id}</h2>
+                  <h2 className="text-xs sm:text-sm text-orange-600 font-medium mt-2">{data.booking_status}</h2>
                 </Link>
               );
             })}

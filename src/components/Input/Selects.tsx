@@ -15,10 +15,10 @@ const Selects: React.FunctionComponent<Props> = (props) => {
     <>
         <div className="">
         <label
-      className="block text-sm font-medium text-gray-700 mb-1"
+      className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
        htmlFor={name} >{label}</label>
       <select 
-      className="w-full p-3 border border-gray-300 "
+      className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
       name={name}
       {...register(name)}
       disabled={disable}
@@ -27,11 +27,11 @@ const Selects: React.FunctionComponent<Props> = (props) => {
             {
                 options.map((data, index)=>(
                     <option key={index} value={data.value}>
-                        {data.value}
+                        {data.label}
                     </option>
                 ))
             }
-            {error && <p className="mt-2 text-sm text-red-600">{error}</p>} 
+            {error && <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-red-600">{error}</p>} 
       </select>
         </div>
     </>

@@ -57,16 +57,17 @@ export const BookingForm = ({room_id}) => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center bg-gray-100">
+    <div className="flex flex-col justify-center items-center bg-gray-100/50 p-4 sm:p-0 w-full">
       <form onSubmit={handleSubmit(onSubmit)} 
-      className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
+      className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-xs sm:max-w-md"
       >
+        <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">เลือกวันจองห้อง</h3>
         <SelectDate register={register}/>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-orange-500 text-white py-2 sm:py-3 px-4 rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors font-semibold mt-4 sm:mt-6"
         >
-          Book Now
+          ยืนยันการจอง
         </button>
       </form>
     </div>

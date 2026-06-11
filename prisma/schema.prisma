@@ -1,25 +1,21 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Departments {
-  department_id   Int         @id @default(autoincrement())
+  department_id   Int          @id @default(autoincrement())
   department_name String
   rate            Decimal
-  created_at      DateTime    @default(now())
-  edited_at       DateTime    @updatedAt
+  created_at      DateTime     @default(now())
+  edited_at       DateTime     @updatedAt
   employees       Employees[]
+
+  @@map("departments")
 }
 
 model Customers {
@@ -34,6 +30,8 @@ model Customers {
   created_at    DateTime     @default(now())
   edited_at     DateTime     @updatedAt
   bookings      Bookings[]
+
+  @@map("customers")
 }
 
 model Employees {
@@ -52,17 +50,21 @@ model Employees {
   department      Departments?   @relation(fields: [department_id], references: [department_id])
   rooms           Rooms[]
   equipments      Equipments[]
+
+  @@map("employees")
 }
 
 model Rooms {
-  room_id    Int          @id @default(autoincrement())
-  room_name  String
+  room_id     Int          @id @default(autoincrement())
+  room_name   String
   description String?
-  image String?
-  room_type  RoomType
-  equipments Equipments[]
-  Bookings   Bookings[]
-  Employees  Employees[]
+  image       String?
+  room_type   RoomType
+  equipments  Equipments[]
+  Bookings    Bookings[]
+  Employees   Employees[]
+
+  @@map("rooms")
 }
 
 model Bookings {
@@ -75,6 +77,8 @@ model Bookings {
   booking_status BookingStatus
   customer       Customers     @relation(fields: [customer_id], references: [customer_id])
   room           Rooms         @relation(fields: [room_id], references: [room_id])
+
+  @@map("bookings")
 }
 
 model Equipments {
@@ -88,6 +92,8 @@ model Equipments {
   number         Int
   room           Rooms?    @relation(fields: [room_id], references: [room_id])
   employee       Employees @relation(fields: [employee_id], references: [employee_id])
+
+  @@map("equipments")
 }
 
 enum CustomerType {
