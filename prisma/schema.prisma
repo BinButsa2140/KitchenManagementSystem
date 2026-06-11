@@ -7,51 +7,51 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Departments {
-  department_id   Int          @id @default(autoincrement())
-  department_name String
-  rate            Decimal
-  created_at      DateTime     @default(now())
-  edited_at       DateTime     @updatedAt
-  employees       Employees[]
-
-  @@map("departments")
-}
-
-model Customers {
-  customer_id   Int          @id @default(autoincrement())
+// --------------------------------------------------
+// 1. ตาราง Users (รวม Customer และ Employee ไว้ด้วยกัน)
+// --------------------------------------------------
+model Users {
+  user_id       Int        @id @default(autoincrement())
   firstname     String
   lastname      String
-  date_of_birth DateTime
-  customer_type CustomerType
-  email         String       @unique
+  email         String     @unique
   password      String
-  phone_number  String       @unique
-  created_at    DateTime     @default(now())
-  edited_at     DateTime     @updatedAt
-  bookings      Bookings[]
+  phone_number  String     @unique
+  date_of_birth DateTime
+  
+  // --- การจัดการสิทธิ์ (Role & Permissions) ---
+  user_type     UserType   @default(customer)
+  is_admin      Boolean    @default(false)
+  user_status   UserStatus @default(active)
 
-  @@map("customers")
+  // --- ข้อมูลเฉพาะพนักงาน (ใช้ ? เพราะลูกค้าทั่วไปจะไม่มีข้อมูลส่วนนี้) ---
+  gender        Gender?
+  department_id Int?
+  department    Departments? @relation(fields: [department_id], references: [department_id])
+
+  // --- ความสัมพันธ์ (Relations) ---
+  bookings      Bookings[]   // การจอง (หลักๆ คือฝั่งลูกค้า/เชฟ)
+  equipments    Equipments[] // อุปกรณ์ที่ดูแล (ฝั่งพนักงาน)
+  rooms         Rooms[]      // ห้องที่ดูแล (ฝั่งพนักงาน)
+
+  sessions      Sessions[]
+
+  created_at    DateTime   @default(now())
+  edited_at     DateTime   @updatedAt
+
+  @@map("users")
 }
 
-model Employees {
-  employee_id     Int            @id @default(autoincrement())
-  firstname       String
-  lastname        String
-  gender          Gender
-  phone_number    String         @unique
-  email           String         @unique
-  password        String
-  date_of_birth   DateTime
-  department_id   Int?
-  employee_status EmployeeStatus
-  created_at      DateTime       @default(now())
-  edited_at       DateTime       @updatedAt
-  department      Departments?   @relation(fields: [department_id], references: [department_id])
-  rooms           Rooms[]
-  equipments      Equipments[]
+model Departments {
+  department_id   Int      @id @default(autoincrement())
+  department_name String
+  rate            Decimal
+  created_at      DateTime @default(now())
+  edited_at       DateTime @updatedAt
+  
+  users           Users[]  // เปลี่ยนจาก employees เป็น users
 
-  @@map("employees")
+  @@map("departments")
 }
 
 model Rooms {
@@ -62,20 +62,22 @@ model Rooms {
   room_type   RoomType
   equipments  Equipments[]
   Bookings    Bookings[]
-  Employees   Employees[]
+  
+  Users       Users[]      // เปลี่ยนจาก Employees เป็น Users
 
   @@map("rooms")
 }
 
 model Bookings {
   booking_id     Int           @id @default(autoincrement())
-  customer_id    Int
+  user_id        Int           // เปลี่ยนจาก customer_id เป็น user_id
   room_id        Int
   booking_time   DateTime
   created_at     DateTime      @default(now())
   edited_at      DateTime      @updatedAt
   booking_status BookingStatus
-  customer       Customers     @relation(fields: [customer_id], references: [customer_id])
+  
+  user           Users         @relation(fields: [user_id], references: [user_id])
   room           Rooms         @relation(fields: [room_id], references: [room_id])
 
   @@map("bookings")
@@ -87,18 +89,37 @@ model Equipments {
   room_id        Int?
   created_at     DateTime  @default(now())
   edited_at      DateTime  @updatedAt
-  employee_id    Int
+  user_id        Int       // เปลี่ยนจาก employee_id เป็น user_id
   price          Int
   number         Int
+  
   room           Rooms?    @relation(fields: [room_id], references: [room_id])
-  employee       Employees @relation(fields: [employee_id], references: [employee_id])
+  user           Users     @relation(fields: [user_id], references: [user_id])
 
   @@map("equipments")
 }
 
-enum CustomerType {
-  chef
+model Sessions {
+  session_id    String   @id @default(cuid()) // แนะนำให้ใช้ cuid หรือ uuid แทน Int เพื่อความปลอดภัยในการสุ่ม
+  user_id       Int
+  device_info   String?  // (Option) เอาไว้เก็บว่าล็อกอินจาก Chrome, Safari หรือมือถือ
+  ip_address    String?  // (Option) เก็บ IP Address
+  login_time    DateTime @default(now())
+  expires_at    DateTime // วันที่ Session นี้จะหมดอายุ
+
+  // ผูกความสัมพันธ์กับตาราง Users (ถ้า User ถูกลบ Session จะถูกลบตามไปด้วย -> onDelete: Cascade)
+  user          Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// --------------------------------------------------
+// Enums
+// --------------------------------------------------
+enum UserType {
   customer
+  chef
+  employee
 }
 
 enum Gender {
@@ -107,7 +128,7 @@ enum Gender {
   other
 }
 
-enum EmployeeStatus {
+enum UserStatus {
   active
   inactive
 }

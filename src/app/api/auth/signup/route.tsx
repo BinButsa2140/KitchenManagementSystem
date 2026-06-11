@@ -6,7 +6,6 @@ const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. รับข้อมูลจาก Frontend
     const body = await request.json();
     const {
       fname,
@@ -18,40 +17,40 @@ export async function POST(request: NextRequest) {
       phone_number,
     } = body;
 
-    // 2. เข้ารหัสรหัสผ่าน
-    const hashedpassword = bcrypt.hashSync(password, 10);
+    const hashedpassword = await bcrypt.hash(password, 10);
 
-    // 3. บันทึกลงฐานข้อมูล
-    const newData = await prisma.customers.create({
+    const newData = await prisma.users.create({
+      // เปลี่ยนจาก .customers เป็น .users
       data: {
         firstname: fname,
         lastname: lname,
-        date_of_birth,
-        customer_type,
+        date_of_birth: new Date(date_of_birth),
+        user_type: customer_type, // เปลี่ยนจาก customer_type เป็น user_type
         email,
         password: hashedpassword,
         phone_number,
+        is_admin: false, // ใส่ค่าเริ่มต้น
+        user_status: "active",
       },
     });
 
-    return NextResponse.json(newData, { status: 201 }); // 201 Created
-
+    return NextResponse.json(newData, { status: 201 });
   } catch (error: any) {
     // เปิด Console เพื่อให้เราเห็นสาเหตุที่แท้จริงใน Terminal!
     console.error("🔥 ERROR FROM PRISMA:", error);
 
     // ดักจับ Error กรณีข้อมูลซ้ำ (เช่น Email หรือเบอร์โทร)
-    if (error.code === 'P2002') {
+    if (error.code === "P2002") {
       return NextResponse.json(
         { message: "อีเมลหรือเบอร์โทรศัพท์นี้ถูกใช้งานแล้วในระบบ" },
-        { status: 400 } // 400 Bad Request
+        { status: 400 }, // 400 Bad Request
       );
     }
 
     // กรณี Error อื่นๆ
     return NextResponse.json(
       { message: "เกิดข้อผิดพลาดในการสร้างบัญชี", details: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

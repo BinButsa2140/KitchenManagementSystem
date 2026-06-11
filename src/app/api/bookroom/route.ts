@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         // สร้างการจองในฐานข้อมูล
         const result = await prisma.bookings.create({
             data: {
-                customer_id: customerIdNum,
+                user_id: customerIdNum, // เปลี่ยนจาก customer_id: ... เป็น user_id: ...
                 room_id: roomIdNum,
                 booking_time: new Date(booking_time),
                 booking_status: 'active',

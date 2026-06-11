@@ -7,6 +7,9 @@ import { getServerSession } from "next-auth";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
+// 🟢 1. Import options ของคุณเข้ามา (เช็ค Path ให้ตรงกับไฟล์ของคุณด้วยนะครับ)
+import { options } from "@/app/api/auth/[...nextauth]/option"; 
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -28,7 +31,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession();
+  // 🟢 2. ใส่ options เข้าไปในวงเล็บ
+  const session = await getServerSession(options); 
+  
   return (
     <html lang="en">
       <body
