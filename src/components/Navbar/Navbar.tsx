@@ -15,7 +15,7 @@ const Navbar = () => {
   // รายการเมนูเฉพาะ Admin (คุณสามารถเปลี่ยน Path ให้ตรงกับที่คุณสร้างไว้ได้เลย)
   const adminLinks = [
     { href: "/admin/dashboard", title: "Dashboard" },
-    { href: "/admin/employees", title: "Employees" },
+    // { href: "/admin/employees", title: "Employees" },
     { href: "/admin/users", title: "Users" },
     { href: "/admin/bookings", title: "Manage Bookings" },
   ];
