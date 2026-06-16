@@ -74,7 +74,7 @@ export const options: NextAuthOptions = {
       }
       
       // เอาไว้ดูใน Terminal ว่าคุกกี้ปัจจุบันมีสิทธิ์แอดมินไหม
-      console.log("📌 JWT Token Data:", token); 
+      // console.log("📌 JWT Token Data:", token); 
       
       return token;
     },

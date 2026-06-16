@@ -72,7 +72,9 @@ model Bookings {
   booking_id     Int           @id @default(autoincrement())
   user_id        Int           // เปลี่ยนจาก customer_id เป็น user_id
   room_id        Int
-  booking_time   DateTime
+  start_time     DateTime
+  end_time       DateTime
+  total_price    Decimal?
   created_at     DateTime      @default(now())
   edited_at      DateTime      @updatedAt
   booking_status BookingStatus

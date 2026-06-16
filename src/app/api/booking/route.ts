@@ -3,25 +3,56 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// 🟢 GET: ดึงข้อมูลการจองตามสิทธิ์ User รายคน
+// 🟢 GET: ดึงข้อมูลการจองตามสิทธิ์ User รายคน หรือตาม booking_id หรือทั้งหมด (สำหรับ admin)
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const user = searchParams.get("user");
+  const booking_id = searchParams.get("booking_id");
+  const all = searchParams.get("all");
+
+  if (all === "true") {
+    try {
+      const bookings = await prisma.bookings.findMany({
+        include: { room: true, user: true },
+        orderBy: { start_time: "desc" },
+      });
+      return NextResponse.json(bookings);
+    } catch (error) {
+      console.error(error);
+      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
+  }
   
+  if (booking_id) {
+    try {
+      const booking = await prisma.bookings.findUnique({
+        where: { booking_id: Number(booking_id) },
+        include: { room: true },
+      });
+      if (!booking) {
+        return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+      }
+      return NextResponse.json(booking);
+    } catch (error) {
+      console.error(error);
+      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
+  }
+
   if (!user) {
-    return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
+    return NextResponse.json({ error: "Missing user ID or booking_id" }, { status: 400 });
   }
 
   try {
     const booking_datas = await prisma.bookings.findMany({
       where: {
-        user_id: Number(user), // เปลี่ยนจาก customer_id -> user_id
+        user_id: Number(user),
       },
       include: {
-        room: true // ดึงข้อมูลห้องพ่วงไปด้วยช่วยให้หน้าบ้านแสดงผลง่ายขึ้น
+        room: true
       },
       orderBy: {
-        created_at: "desc",
+        start_time: "desc",
       },
     });
     return NextResponse.json(booking_datas);
@@ -31,37 +62,55 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// 🔵 POST: บันทึกรายการจองครัวใหม่
+// 🔵 POST: บันทึกรายการจองครัวใหม่ พร้อมตรวจสอบการจองซ้ำ
 export async function POST(request: NextRequest) {
-  const searchparams = request.nextUrl.searchParams;
-  const user_id = searchparams.get("customer_id"); // ยอมรับ Query ที่ส่งมาแก้ชื่อภายใน
-  const room_id = searchparams.get("room_id");
-  const booking_time = searchparams.get("booking_time");
-
-  if (!user_id || !room_id || !booking_time) {
-    return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
-  }
-
-  const userIdNum = parseInt(user_id);
-  const roomIdNum = parseInt(room_id);
-
-  if (isNaN(userIdNum) || isNaN(roomIdNum)) {
-    return NextResponse.json({ error: "Invalid user_id or room_id" }, { status: 400 });
-  }
-
   try {
+    const body = await request.json();
+    const { user_id, room_id, start_time, end_time } = body;
+
+    if (!user_id || !room_id || !start_time || !end_time) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const start = new Date(start_time);
+    const end = new Date(end_time);
+
+    if (start >= end) {
+      return NextResponse.json({ error: "Start time must be before end time" }, { status: 400 });
+    }
+
+    // 1. ตรวจสอบการจองซ้ำ (Conflict Validation)
+    const existingBooking = await prisma.bookings.findFirst({
+      where: {
+        room_id: Number(room_id),
+        booking_status: "active",
+        OR: [
+          {
+            start_time: { lt: end },
+            end_time: { gt: start },
+          },
+        ],
+      },
+    });
+
+    if (existingBooking) {
+      return NextResponse.json({ error: "ห้องครัวถูกจองแล้วในช่วงเวลานี้" }, { status: 409 });
+    }
+
+    // 2. บันทึกการจอง
     const result = await prisma.bookings.create({
       data: {
-        user_id: userIdNum, // ชี้ไปหา Relations ใหม่ใน schema
-        room_id: roomIdNum,
-        booking_time: new Date(booking_time),
+        user_id: Number(user_id),
+        room_id: Number(room_id),
+        start_time: start,
+        end_time: end,
         booking_status: "active",
       },
     });
 
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    console.error(error);
+    console.error("Booking Error:", error);
     return NextResponse.json({ error: "Error creating booking" }, { status: 500 });
   }
 }
