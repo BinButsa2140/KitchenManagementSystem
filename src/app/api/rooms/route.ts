@@ -1,13 +1,13 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
 
 export async function GET(){
     try {
         const roomData = await prisma.rooms.findMany()
-        console.log(roomData)
-        return Response.json(roomData)
+        return NextResponse.json(roomData)
     } catch (error) {
-        console.log(`ERROR : ${error}`)
+        console.error(`ERROR : ${error}`)
+        return NextResponse.json({ error: 'Failed to fetch rooms' }, { status: 500 })
     }
 } 
+ 

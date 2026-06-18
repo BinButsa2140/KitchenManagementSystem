@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import { NextRequest } from "next/server";
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req:NextRequest){
     const searchParams = req.nextUrl.searchParams
@@ -25,10 +24,11 @@ export async function GET(req:NextRequest){
         const equipments = await prisma.equipments.findMany({
             where:condition
         })
-        return Response.json(equipments)
+        return NextResponse.json(equipments)
 
 
     } catch (error) {
-        return Response.json(error)
+        console.error("Error fetching equipment:", error);
+        return NextResponse.json({ error: "Failed to fetch equipment" }, { status: 500 })
     }
 }

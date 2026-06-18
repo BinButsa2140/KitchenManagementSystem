@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 // 🟡 PATCH: อัปเดตสถานะการจอง (เช่น active, inactive, cancelled)
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {

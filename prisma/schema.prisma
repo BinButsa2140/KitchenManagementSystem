@@ -33,6 +33,7 @@ model Users {
   bookings      Bookings[]   // การจอง (หลักๆ คือฝั่งลูกค้า/เชฟ)
   equipments    Equipments[] // อุปกรณ์ที่ดูแล (ฝั่งพนักงาน)
   rooms         Rooms[]      // ห้องที่ดูแล (ฝั่งพนักงาน)
+  recipes       Recipes[]    // สูตรอาหาร
 
   sessions      Sessions[]
 
@@ -113,6 +114,19 @@ model Sessions {
   user          Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@map("sessions")
+}
+
+model Recipes {
+  recipe_id    Int      @id @default(autoincrement())
+  title        String
+  content      String   @db.Text
+  image        String?
+  author_id    Int
+  author       Users    @relation(fields: [author_id], references: [user_id])
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("recipes")
 }
 
 // --------------------------------------------------

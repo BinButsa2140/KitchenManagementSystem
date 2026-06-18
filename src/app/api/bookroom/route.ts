@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";  // ตรวจสอบการใช้งานจาก Next.js v13
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
     const searchparams = request.nextUrl.searchParams;

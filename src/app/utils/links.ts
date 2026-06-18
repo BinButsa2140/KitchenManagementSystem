@@ -4,6 +4,10 @@ export const links=[
         href:'/room'
     },
     {
+        title:'recipes',
+        href:'/recipes'
+    },
+    {
         title:'my booking',
         href:'/mybooking'
     },

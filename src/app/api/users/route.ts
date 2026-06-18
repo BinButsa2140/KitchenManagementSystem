@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 // 🟢 GET: ดึงรายชื่อผู้ใช้งานทั้งหมด
 export async function GET() {

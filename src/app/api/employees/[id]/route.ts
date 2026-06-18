@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 // PUT: อัปเดตข้อมูลพนักงาน
 export async function PUT(
@@ -48,9 +46,9 @@ export async function PUT(
   } catch (error: any) {
     console.error("Error updating employee:", error);
     if (error.code === 'P2002') {
-      return NextResponse.json({ message: "อีเมลหรือเบอร์โทรนี้ถูกใช้ไปแล้ว" }, { status: 400 });
+      return NextResponse.json({ error: "อีเมลหรือเบอร์โทรนี้ถูกใช้ไปแล้ว" }, { status: 400 });
     }
-    return NextResponse.json({ message: "อัปเดตข้อมูลล้มเหลว", details: error.message }, { status: 500 });
+    return NextResponse.json({ error: "อัปเดตข้อมูลล้มเหลว", details: error.message }, { status: 500 });
   }
 }
 
@@ -76,7 +74,7 @@ export async function DELETE(
   } catch (error: any) {
     console.error("Error deleting employee:", error);
     return NextResponse.json(
-      { message: "ลบพนักงานล้มเหลว", details: error.message },
+      { error: "ลบพนักงานล้มเหลว", details: error.message },
       { status: 500 }
     );
   }

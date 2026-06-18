@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 // 🟢 GET: ดึงข้อมูลพนักงานทั้งหมด (เอาไปแสดงในตาราง Dashboard)
 export async function GET() {
@@ -26,7 +24,7 @@ export async function GET() {
   } catch (error: any) {
     console.error("Error fetching employees:", error);
     return NextResponse.json(
-      { message: "ดึงข้อมูลพนักงานล้มเหลว", details: error.message },
+      { error: "ดึงข้อมูลพนักงานล้มเหลว", details: error.message },
       { status: 500 }
     );
   }
@@ -77,12 +75,12 @@ export async function POST(request: NextRequest) {
     // ดักจับ Error หากอีเมลหรือเบอร์โทรซ้ำ
     if (error.code === 'P2002') {
       return NextResponse.json(
-        { message: "อีเมลหรือเบอร์โทรศัพท์นี้มีในระบบแล้ว" },
+        { error: "อีเมลหรือเบอร์โทรศัพท์นี้มีในระบบแล้ว" },
         { status: 400 }
       );
     }
     return NextResponse.json(
-      { message: "สร้างข้อมูลพนักงานล้มเหลว", details: error.message },
+      { error: "สร้างข้อมูลพนักงานล้มเหลว", details: error.message },
       { status: 500 }
     );
   }

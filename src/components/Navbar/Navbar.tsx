@@ -15,7 +15,7 @@ const Navbar = () => {
 
   // รายการเมนูเฉพาะ Admin
   const adminLinks = [
-    { href: "/admin/dashboard", title: "Dashboard" },
+    { href: "/admin/recipes", title: "Recipes" },
     { href: "/admin/users", title: "Users" },
     { href: "/admin/bookings", title: "Manage Bookings" },
   ];

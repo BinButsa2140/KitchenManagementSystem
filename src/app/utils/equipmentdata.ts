@@ -6,7 +6,7 @@ export async function equipmentdata({
   search: string;
 }) {
   try {
-    const url = `http://localhost:3000/api/equipment?room=${id}&name=${search}`;
+    const url = `/api/equipment?room=${id}&name=${search}`;
     console.log("URL : ",url, 'type = ', typeof(url))
     const response = await fetch(url);
     const fetchedData = await response.json();

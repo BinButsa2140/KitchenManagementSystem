@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,14 +40,14 @@ export async function POST(request: NextRequest) {
     // ดักจับ Error กรณีข้อมูลซ้ำ (เช่น Email หรือเบอร์โทร)
     if (error.code === "P2002") {
       return NextResponse.json(
-        { message: "อีเมลหรือเบอร์โทรศัพท์นี้ถูกใช้งานแล้วในระบบ" },
+        { error: "อีเมลหรือเบอร์โทรศัพท์นี้ถูกใช้งานแล้วในระบบ" },
         { status: 400 }, // 400 Bad Request
       );
     }
 
     // กรณี Error อื่นๆ
     return NextResponse.json(
-      { message: "เกิดข้อผิดพลาดในการสร้างบัญชี", details: error.message },
+      { error: "เกิดข้อผิดพลาดในการสร้างบัญชี", details: error.message },
       { status: 500 },
     );
   }

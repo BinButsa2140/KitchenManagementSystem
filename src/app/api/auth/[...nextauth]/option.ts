@@ -1,9 +1,9 @@
-import type { NextAuthOptions } from "next-auth";
-import { PrismaClient } from "@prisma/client";
+﻿import type { NextAuthOptions } from "next-auth";
+import { prisma } from "@/lib/prisma";
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+
 
 export const options: NextAuthOptions = {
   providers: [
@@ -16,19 +16,19 @@ export const options: NextAuthOptions = {
       async authorize(credentials, req) {
         if (!credentials) return null;
         
-        // 1. ค้นหาผู้ใช้จากตาราง users
+        // 1. เธเนเธเธซเธฒเธเธนเนเนเธเนเธเธฒเธเธ•เธฒเธฃเธฒเธ users
         const user = await prisma.users.findUnique({
           where: {
             email: credentials.email,
           }
         });
 
-        // 2. ตรวจสอบรหัสผ่านและสถานะผู้ใช้ (ต้องเป็น active เท่านั้น)
+        // 2. เธ•เธฃเธงเธเธชเธญเธเธฃเธซเธฑเธชเธเนเธฒเธเนเธฅเธฐเธชเธ–เธฒเธเธฐเธเธนเนเนเธเน (เธ•เนเธญเธเน€เธเนเธ active เน€เธ—เนเธฒเธเธฑเนเธ)
         if (user && user.user_status === 'active' && (await bcrypt.compare(credentials.password, user.password))) {
           
-          // 3. บันทึกประวัติการล็อกอินลงตาราง sessions (ที่เราเพิ่งสร้างไว้)
+          // 3. เธเธฑเธเธ—เธถเธเธเธฃเธฐเธงเธฑเธ•เธดเธเธฒเธฃเธฅเนเธญเธเธญเธดเธเธฅเธเธ•เธฒเธฃเธฒเธ sessions (เธ—เธตเนเน€เธฃเธฒเน€เธเธดเนเธเธชเธฃเนเธฒเธเนเธงเน)
           const expiresDate = new Date();
-          expiresDate.setDate(expiresDate.getDate() + 30); // ตั้งหมดอายุไว้ 30 วัน
+          expiresDate.setDate(expiresDate.getDate() + 30); // เธ•เธฑเนเธเธซเธกเธ”เธญเธฒเธขเธธเนเธงเน 30 เธงเธฑเธ
           
           try {
             await prisma.sessions.create({
@@ -39,50 +39,50 @@ export const options: NextAuthOptions = {
             });
           } catch (error) {
             console.error("Failed to save session log:", error);
-            // ไม่ต้อง throw error ปล่อยให้ล็อกอินผ่านไปแม้จะเก็บ Log ไม่สำเร็จ
+            // เนเธกเนเธ•เนเธญเธ throw error เธเธฅเนเธญเธขเนเธซเนเธฅเนเธญเธเธญเธดเธเธเนเธฒเธเนเธเนเธกเนเธเธฐเน€เธเนเธ Log เนเธกเนเธชเธณเน€เธฃเนเธ
           }
 
-          // 4. ส่งข้อมูลกลับไปให้ NextAuth สร้าง Token
+          // 4. เธชเนเธเธเนเธญเธกเธนเธฅเธเธฅเธฑเธเนเธเนเธซเน NextAuth เธชเธฃเนเธฒเธ Token
           return {
-            id: String(user.user_id), // NextAuth บังคับให้ id เป็น string
+            id: String(user.user_id), // NextAuth เธเธฑเธเธเธฑเธเนเธซเน id เน€เธเนเธ string
             name: user.firstname,
             email: user.email,
-            role: user.user_type,     // สิทธิ์: customer, chef, employee
-            isAdmin: user.is_admin,   // สถานะแอดมิน: true หรือ false
+            role: user.user_type,     // เธชเธดเธ—เธเธดเน: customer, chef, employee
+            isAdmin: user.is_admin,   // เธชเธ–เธฒเธเธฐเนเธญเธ”เธกเธดเธ: true เธซเธฃเธทเธญ false
           };
         } else {
-          throw new Error('อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือบัญชีถูกระงับการใช้งาน');
+          throw new Error('เธญเธตเน€เธกเธฅเธซเธฃเธทเธญเธฃเธซเธฑเธชเธเนเธฒเธเนเธกเนเธ–เธนเธเธ•เนเธญเธ เธซเธฃเธทเธญเธเธฑเธเธเธตเธ–เธนเธเธฃเธฐเธเธฑเธเธเธฒเธฃเนเธเนเธเธฒเธ');
         }
       },
     })
   ],
   pages: {
-    signIn: '/signin', // ชี้ไปที่หน้า Custom Login ที่คุณสร้างไว้
+    signIn: '/signin', // เธเธตเนเนเธเธ—เธตเนเธซเธเนเธฒ Custom Login เธ—เธตเนเธเธธเธ“เธชเธฃเนเธฒเธเนเธงเน
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // อายุของคุกกี้ 30 วัน (หน่วยเป็นวินาที)
+    maxAge: 30 * 24 * 60 * 60, // เธญเธฒเธขเธธเธเธญเธเธเธธเธเธเธตเน 30 เธงเธฑเธ (เธซเธเนเธงเธขเน€เธเนเธเธงเธดเธเธฒเธ—เธต)
   },
   callbacks: {
-    // 🟢 1. JWT Callback: ทำงานทุกครั้งที่ Token ถูกสร้าง (ตอนล็อกอิน) หรืออัปเดต
+    // ๐ข 1. JWT Callback: เธ—เธณเธเธฒเธเธ—เธธเธเธเธฃเธฑเนเธเธ—เธตเน Token เธ–เธนเธเธชเธฃเนเธฒเธ (เธ•เธญเธเธฅเนเธญเธเธญเธดเธ) เธซเธฃเธทเธญเธญเธฑเธเน€เธ”เธ•
     async jwt({ token, user }) {
       if (user) {
-        // ตอนล็อกอินสำเร็จ user จะมีค่า เราก็ยัดใส่ token
+        // เธ•เธญเธเธฅเนเธญเธเธญเธดเธเธชเธณเน€เธฃเนเธ user เธเธฐเธกเธตเธเนเธฒ เน€เธฃเธฒเธเนเธขเธฑเธ”เนเธชเน token
         token.id = user.id;
         token.role = user.role;
         token.isAdmin = user.isAdmin;
       }
       
-      // เอาไว้ดูใน Terminal ว่าคุกกี้ปัจจุบันมีสิทธิ์แอดมินไหม
-      // console.log("📌 JWT Token Data:", token); 
+      // เน€เธญเธฒเนเธงเนเธ”เธนเนเธ Terminal เธงเนเธฒเธเธธเธเธเธตเนเธเธฑเธเธเธธเธเธฑเธเธกเธตเธชเธดเธ—เธเธดเนเนเธญเธ”เธกเธดเธเนเธซเธก
+      // console.log("๐“ JWT Token Data:", token); 
       
       return token;
     },
     
-    // 🟢 2. Session Callback: ส่งข้อมูลจาก Token ไปให้หน้าบ้าน (useSession) ใช้
+    // ๐ข 2. Session Callback: เธชเนเธเธเนเธญเธกเธนเธฅเธเธฒเธ Token เนเธเนเธซเนเธซเธเนเธฒเธเนเธฒเธ (useSession) เนเธเน
     async session({ session, token }) {
       if (session.user && token) {
-        // ดึงจาก token กลับมาใส่ session คืน
+        // เธ”เธถเธเธเธฒเธ token เธเธฅเธฑเธเธกเธฒเนเธชเน session เธเธทเธ
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.isAdmin = token.isAdmin as boolean;
